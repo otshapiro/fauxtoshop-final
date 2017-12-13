@@ -11,6 +11,7 @@ function setup() {
   frameRate(200);
 	background(220);
 	
+	//First toolbar that opens up
 	toolbar1 = createImg("https://i.imgur.com/WWHYNKn.png");
 	toolbar1.position(8,55);
 	toolbar1.size(53,405);
@@ -134,14 +135,17 @@ function draw() {
 	}
 }
 
+//When toolbar1Show is true, show the first toolbar
 function toolbar1Show() {
 	toolbar1.show();
 }
 
+//When toolbar1Hide is true, hide the first toolbar
 function toolbar1Hide() {
 	toolbar1.hide();
 }
 
+//When the mouse is clicked in certain areas, open up the toolbar. 
 function mouseClicked() {
 	if (mouseX <= 50 && mouseX >= 0 && mouseY <= 50 && mouseY >= 0) {
 		toolbar1Show();
