@@ -1,0 +1,310 @@
+var canvas;
+var toolbar1;
+var img;
+var count;
+var input, button, greeting,word;
+var newInput1;
+var gui;
+var errMsg;
+var errStr;
+var Textbox;
+
+function preload() {}
+
+function setup() {
+    canvas = createCanvas(800, 800);
+    frameRate(200);
+    background(220);
+
+    //First toolbar that opens up
+    toolbar1 = createImg("https://i.imgur.com/WWHYNKn.png");
+    toolbar1.position(8, 55);
+    toolbar1.size(53, 405);
+    toolbar1.hide();
+    toolbar1.mousePressed(toolbar1Hide);
+}
+
+//Setting variables.
+var c;
+
+var Circle;
+var Rectangle;
+var Line;
+var Drop;
+
+var Density = 255;
+
+var toolbarX = [0, 50, 100, 150, 200, 250, 300, 350, 400];
+var toolbarY = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+function draw() {
+    //This says that if you press the plus or minus key, the density gets larger or smaller.
+    //Density can not be larger than 100%, or 255, nor can it be smaller than 0, or 0%.
+    if (keyIsDown(187)) {
+        Density = Density + 1
+    }
+    if (keyIsDown(189)) {
+        Density = Density - 1
+    }
+    if (Density > 255) {
+        Density = 255
+    }
+    if (Density < 0) {
+        Density = 0
+    }
+
+    //This says that, if you press the left, right, up, or down key, you get a certain color.
+    //Also says that if you press the space bar, you get a randomized color.
+    if (keyCode == 0) {
+        c = color(0, 0, 0, Density);
+    } else if (keyCode == UP_ARROW) {
+        c = color(255, 0, 0, Density);
+    } else if (keyCode == DOWN_ARROW) {
+        c = color(0, 255, 0, Density);
+    } else if (keyCode == RIGHT_ARROW) {
+        c = color(0, 0, 255, Density);
+    } else if (keyCode == LEFT_ARROW) {
+        c = color(0, 0, 0, Density);
+    } else if (keyIsDown(32)) {
+        c = color(random(0, 255), random(0, 255), random(0, 255), Density);
+    }
+
+    //This says that, when you press the mouse key, you get a shape.
+    //This also says that if you press the 1 key or 2 key, you get a circle or a rectangle.
+    //To be learned: switch (toolNum);
+    //case 1:
+    fill(c);
+    noStroke();
+    if (mouseIsPressed) {
+        if (mouseY >= 50 && mouseY <= 100 && mouseX <= 50) {
+            Circle = true;
+            Rectangle = false;
+            Line = false;
+            Drop = false;
+            Textbox = false;
+        } else if (mouseY >= 100 && mouseY <= 150 && mouseX <= 50) {
+            Circle = false;
+            Rectangle = true;
+            Line = false;
+            Drop = false;
+            Textbox = false;
+        } else if (mouseY >= 150 && mouseY <= 200 && mouseX <= 50) {
+            Circle = false;
+            Rectangle = false;
+            Line = true;
+            Drop = false;
+            Textbox = false;
+        } else if (mouseY >= 0 && mouseY <= 50 && mouseX <= 100 && mouseX >= 50) {
+            Circle = false;
+            Rectangle = false;
+            Line = false;
+            Drop = true;
+            Textbox = false;
+         } else if (mouseY >= 0 && mouseY <= 50 && mouseX <= 150 && mouseX >= 50) {
+            Circle = false;
+            Rectangle = false;
+            Line = false;
+            Drop = false;
+            Textbox = true;
+        } else {
+
+            Drop = false;
+        }
+
+
+        //This enables the drag and drop
+        if (Drop == true) {
+            console.log("drop");
+            canvas.drop(gotFile);
+            // display text
+            textSize(20);
+            text("Drop Image Here", 100, 100);
+
+            count = 0;
+        }
+        if (Circle == true) {
+            ellipse(mouseX, mouseY, abs(mouseX - pmouseX) + abs(mouseY - pmouseY), abs(mouseX - pmouseX) + abs(mouseY - pmouseY));
+        }
+        if (Rectangle == true) {
+            rectMode(RADIUS);
+            rect(mouseX, mouseY, abs(mouseX - pmouseX) + abs(mouseY - pmouseY), abs(mouseX - pmouseX) + abs(mouseY - pmouseY));
+        }
+        if (Line == true) {
+            stroke(c)
+            strokeWeight((abs(mouseX - pmouseX) + abs(mouseY - pmouseY)) / 4)
+            line(mouseX, mouseY, pmouseX, pmouseY);
+        }
+        if (Textbox == true) {
+            Textbox = false;
+                buildControls();  
+            Textbox = false;
+
+        }
+
+    }
+
+    //Clear function. Press c to clear the screen.
+    if (keyCode == 67) {
+        fill(220);
+        rectMode(CORNER);
+        rect(0, 0, windowWidth, windowHeight);
+    }
+
+
+
+
+    //This makes sure that the user always knows what the value of Density is.
+    noStroke();
+    fill(220);
+    rectMode(CORNER);
+    rect(20, windowHeight - 45, 150, 30);
+    fill(0, 0, 0);
+    textSize(20);
+
+    text("Opacity = " + int(Density / 255 * 100) + "%", 25, windowHeight - 25);
+
+    for (var a = 0; a < toolbarX.length; a++) {
+        //Outline for top toolbar
+        stroke(150);
+        strokeWeight(5);
+        //Inside color of top toolbar
+        fill(220);
+        rectMode(CORNER);
+        rect(toolbarX[a], toolbarY[a], 50, 50);
+        //Text on the toolbar
+        textSize(12);
+        text("Paint", 10, 25);
+    }
+}
+
+
+
+
+//When toolbar1Show is true, show the first toolbar
+function toolbar1Show() {
+    toolbar1.show();
+}
+
+//When toolbar1Hide is true, hide the first toolbar
+function toolbar1Hide() {
+    toolbar1.hide();
+}
+
+//When the mouse is clicked in certain areas, open up the toolbar.
+function mouseClicked() {
+    if (mouseX <= 50 && mouseX >= 0 && mouseY <= 50 && mouseY >= 0) {
+        toolbar1Show();
+    }
+}
+
+function gotFile(file) {
+    loadImage(file.data,
+        function(dropFileImage) {
+            //resizeCanvas(dropFileImage.width,dropFileImage.height);
+            //This code does not work if the image height is greater than the canvas height, as well as the image's width is greater than the canvas width. We need an extra if statement that says if both the drop File image.width & .height is greater than the canvas.width & .height, then it resizes it completely. 
+            if (dropFileImage.width > canvas.width) {
+                image(dropFileImage, 0, 50, canvas.width/dropFileImage.width * dropFileImage.width, canvas.width/dropFileImage.width * dropFileImage.height);
+                img = dropFileImage;
+                count++;
+            } else if (dropFileImage.height > canvas.height) {
+                image(dropFileImage, 0, 50, canvas.height/dropFileImage.height * dropFileImage.width, canvas.height/dropFileImage.height * dropFileImage.height);
+                img = dropFileImage;
+                count++;
+            } else {
+                image(dropFileImage, 0, 50, dropFileImage.width, dropFileImage.height);
+                img = dropFileImage;
+                count++;
+            }
+            
+            
+        }
+    );
+}
+
+function buildControls() {
+          // Create the GUI
+    input = createInput();
+    input.position(0, 65);
+    //x position input
+    input1 = createInput();
+    input1.position(135, 65);
+    //y position input
+    input2 = createInput();
+    input2.position(270, 65);
+    // this is the button the user will use to submit the inputs
+    button2 = createButton('submit');
+    button2.position(input2.x + input2.width, 65);
+    button2.mousePressed(textDisplayed);
+
+    // all the greetings for the user, so that they know which input is which
+    word = createElement('h3', 'what text');
+    word.position(0,20);
+    xPosition = createElement('h3','what x position');
+    xPosition.position(135,20);
+    yPosition = createElement('h3','what y position');
+    yPosition.position(275,20);
+
+    if (errMsg != null) {
+        errStr = createElement('h2', errMsg);
+        errStr.position(50,70);
+    }
+
+
+}
+//This function will display the text the user picked
+function textDisplayed() {
+  var t = input.value();
+    //Position of new word based on user inputs
+
+    if (input1.value() > windowWidth ) {
+        errMsg = 'please enter new x value';
+        input.hide();
+        input1.hide();
+        input2.hide();
+        button2.hide();
+        xPosition.hide();
+        yPosition.hide();
+        word.hide();
+        buildControls();
+
+    }
+    else if (input2.value() > windowHeight ){
+        errMsg = 'please enter new y value';
+        input.hide();
+        input1.hide();
+        input2.hide();
+        button2.hide();
+        xPosition.hide();
+        yPosition.hide();
+        word.hide();
+        buildControls();
+
+    }
+    else {
+        errMsg = null;
+
+        if (errStr != null) {
+            errStr.hide();
+        }
+    
+        word.position(input1.value(),input2.value());
+        word.html(t);
+
+        //hides all the inputs, buttons and greetings once it is pressed.
+        input.hide();
+        input1.hide();
+        input2.hide();
+        button2.hide();
+        xPosition.hide();
+        yPosition.hide();
+
+
+    }
+}
+function imageReact() {
+    if (img.width > 0) {
+        resizeCanvas(200, 200);
+        image(img, 200, 200, 400, 400);
+    }
+    
+}
